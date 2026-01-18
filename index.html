@@ -20,31 +20,37 @@
 
 
 
+        /* simulate sketch canvas size and center it */
         #menu {
-            /* positioned container so absolutely-placed words are relative to it */
             position: relative;
-            inset: 0;
-            height: 100vh;
+            width: 750px;
+            height: 1334px;
+            max-width: 100%;
+            max-height: 100vh;
+            margin: 0 auto;
             font-size: 43px;
             cursor: pointer;
+            touch-action: manipulation;
         }
 
-        /* subtle floating animation for the words */
+        /* subtle floating animation for the words (each word has a unique animation) */
         .word {
             position: absolute;
             display: inline-block;
             color: inherit;
-            animation: floatWord 3.5s ease-in-out infinite;
             will-change: transform;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
+        /* different animations so words don't move the same */
+        .word.s1 { animation: float1 4.2s ease-in-out infinite; animation-delay: 0s; }
+        .word.s2 { animation: float2 3.1s ease-in-out infinite; animation-delay: 0.25s; }
+        .word.s3 { animation: float3 5.0s cubic-bezier(.25,.46,.45,.94) infinite; animation-delay: 0.55s; }
 
-        @keyframes floatWord {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-            100% { transform: translateY(0); }
-        }
+        @keyframes float1 { 0%{transform:translateY(0) translateX(0)}50%{transform:translateY(-12px) translateX(2px)}100%{transform:translateY(0) translateX(0)} }
+        @keyframes float2 { 0%{transform:translateY(0) translateX(0)}50%{transform:translateY(-6px) translateX(-6px)}100%{transform:translateY(0) translateX(0)} }
+        @keyframes float3 { 0%{transform:translateY(0) translateX(0)}50%{transform:translateY(-18px) translateX(1px)}100%{transform:translateY(0) translateX(0)} }
 
         #videoPlayer {
             position: absolute;
@@ -61,9 +67,9 @@
 <body>
 
     <div id="menu">
-        <div class="word" onclick="playRandom('schaum')">schaumkronen</div>
-        <div class="word" onclick="playRandom('blaetter')">blätterschatten</div>
-        <div class="word" onclick="playRandom('wind')">windheulen</div>
+        <div class="word s1" onclick="playRandom('schaum')">schaumkronen</div>
+        <div class="word s2" onclick="playRandom('blaetter')">blätterschatten</div>
+        <div class="word s3" onclick="playRandom('wind')">windheulen</div>
     </div>
 
     <video id="videoPlayer" playsinline webkit-playsinline></video>
@@ -102,35 +108,38 @@
         const menu = document.getElementById("menu");
         const player = document.getElementById("videoPlayer");
 
-        // placeWords: randomly place each menu word into one third of the screen
+        // placeWords: position each menu word closer together inside the 750x1334 menu
         function placeWords() {
             const words = document.querySelectorAll("#menu .word");
-            const height = window.innerHeight;
+            const rect = menu.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
 
-            const thirds = [
-                [0, height / 3],            // erstes Drittel
-                [height / 3, 2 * height / 3], // zweites Drittel
-                [2 * height / 3, height]      // drittes Drittel
-            ];
+            // center vertical band and small offsets so words stay close
+            const centerY = height * 0.5;
+            const offsetsY = [-60, 0, 60];
+            const baseXs = [width * 0.28, width * 0.5, width * 0.72];
 
-            const shuffledThirds = thirds.sort(() => Math.random() - 0.5);
-
-            words.forEach((word, index) => {
-                // ensure word is measured before placing
+            words.forEach((word) => {
                 word.style.position = 'absolute';
                 word.style.left = '0px';
                 word.style.top = '0px';
             });
 
-            // allow layout to update then compute positions
             requestAnimationFrame(() => {
                 words.forEach((word, index) => {
-                    const [minY, maxY] = shuffledThirds[index];
-                    const top = minY + Math.random() * Math.max(0, (maxY - minY - word.offsetHeight));
-                    const left = Math.random() * Math.max(0, (window.innerWidth - word.offsetWidth));
+                    const jitterX = (Math.random() - 0.5) * 30; // ±15px
+                    const jitterY = (Math.random() - 0.5) * 20; // ±10px
 
-                    word.style.top = `${top}px`;
+                    let left = Math.round(baseXs[index] - word.offsetWidth / 2 + jitterX);
+                    let top = Math.round(centerY + offsetsY[index] + jitterY - word.offsetHeight / 2);
+
+                    // clamp inside menu
+                    left = Math.max(0, Math.min(left, Math.max(0, width - word.offsetWidth)));
+                    top = Math.max(0, Math.min(top, Math.max(0, height - word.offsetHeight)));
+
                     word.style.left = `${left}px`;
+                    word.style.top = `${top}px`;
                 });
             });
         }
