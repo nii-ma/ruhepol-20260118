@@ -50,6 +50,15 @@
     <video id="videoPlayer" playsinline webkit-playsinline></video>
 
     <script>
+        function requestFullscreen(){
+            const elem = document.documentElement;
+
+            if (elm.requestFullscreen){
+                elm.requestFullscreen();
+            } else if (elm.webkitRequestFullscreen){
+                elem.webkitRequestFullscreen();
+            }
+        }
         const videos = {
             schaum: [
                 "videos/schaum1.mp4",
@@ -72,6 +81,8 @@
         const player = document.getElementById("videoPlayer");
 
         function playRandom(category) {
+            requestFullscreen();
+
             const list = videos[category];
             const randomIndex = Math.floor(Math.random() * list.length);
             const selectedVideo = list[randomIndex];
