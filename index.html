@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Auswahl</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        #menu {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            font-size: 48px;
+            cursor: pointer;
+        }
+
+        .word:hover {
+            color: #aaa;
+        }
+
+        #videoPlayer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu">
+        <div class="word" onclick="playRandom('schaum')">Schaumkronen</div>
+        <div class="word" onclick="playRandom('blaetter')">Blätterschatten</div>
+        <div class="word" onclick="playRandom('wind')">Windheulen</div>
+    </div>
+
+    <video id="videoPlayer"></video>
+
+    <script>
+        const videos = {
+            schaum: [
+                "videos/schaum1.mp4",
+                "videos/schaum2.mp4",
+                "videos/schaum3.mp4"
+            ],
+            blaetter: [
+                "videos/blaetter1.mp4",
+                "videos/blaetter2.mp4",
+                "videos/blaetter3.mp4"
+            ],
+            wind: [
+                "videos/wind1.mp4",
+                "videos/wind2.mp4",
+                "videos/wind3.mp4"
+            ]
+        };
+
+        const menu = document.getElementById("menu");
+        const player = document.getElementById("videoPlayer");
+
+        function playRandom(category) {
+            const list = videos[category];
+            const randomIndex = Math.floor(Math.random() * list.length);
+            const selectedVideo = list[randomIndex];
+
+            menu.style.display = "none";
+            player.style.display = "block";
+
+            player.src = selectedVideo;
+            player.load();
+            player.play();
+        }
+
+        // Wenn Video zu Ende → zurück zum Menü
+        player.addEventListener("ended", () => {
+            player.style.display = "none";
+            menu.style.display = "flex";
+            player.src = "";
+        });
+    </script>
+
+</body>
+</html>
