@@ -36,6 +36,7 @@
             object-fit: cover;
             display: none;
             background: black;
+            z-index: 10;
         }
     </style>
 </head>
@@ -50,13 +51,16 @@
     <video id="videoPlayer" playsinline webkit-playsinline></video>
 
     <script>
-        function requestFullscreen(){
-            const elem = document.documentElement;
+        function requestFullscreen(el){
+            const target = el || document.documentElement;
 
-            if (elm.requestFullscreen){
-                elm.requestFullscreen();
-            } else if (elm.webkitRequestFullscreen){
-                elem.webkitRequestFullscreen();
+            if (target.requestFullscreen){
+                target.requestFullscreen();
+            } else if (target.webkitRequestFullscreen){
+                target.webkitRequestFullscreen();
+            } else if (typeof target.webkitEnterFullscreen === 'function'){
+                // iOS Safari video fullscreen API
+                try { target.webkitEnterFullscreen(); } catch(e){}
             }
         }
         const videos = {
@@ -89,16 +93,14 @@
 
             menu.style.display = "none";
             player.style.display = "block";
-
-            player.control = false;
-            player.setAttribute("playinline","");
-            player.setAttribute("webkit-playsinline","");
-
+            player.controls = false;
+            player.setAttribute("playsinline", "");
+            player.setAttribute("webkit-playsinline", "");
             player.src = selectedVideo;
-            player.load();
-            player.play();
         }
 
+            // try to open fullscreen on the video element (works on some iOS versions)
+            requestFullscreen(player);
         // Wenn Video zu Ende → zurück zum Menü
         player.addEventListener("ended", () => {
             player.style.display = "none";
