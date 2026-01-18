@@ -85,8 +85,8 @@
         const player = document.getElementById("videoPlayer");
 
         function playRandom(category) {
-            requestFullscreen();
-
+            // try to open fullscreen on the video element or document (must be a direct user gesture)
+            
             const list = videos[category];
             const randomIndex = Math.floor(Math.random() * list.length);
             const selectedVideo = list[randomIndex];
@@ -97,10 +97,13 @@
             player.setAttribute("playsinline", "");
             player.setAttribute("webkit-playsinline", "");
             player.src = selectedVideo;
+            // request fullscreen as part of the user click gesture
+            try{ requestFullscreen(player); } catch(e){}
+            player.load();
+            // start playback (handle promise rejection)
+            const p = player.play();
+            if (p && p.catch) p.catch(err => console.log('play() error:', err));
         }
-
-            // try to open fullscreen on the video element (works on some iOS versions)
-            requestFullscreen(player);
         // Wenn Video zu Ende → zurück zum Menü
         player.addEventListener("ended", () => {
             player.style.display = "none";
