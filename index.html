@@ -47,7 +47,7 @@
         <div class="word" onclick="playRandom('wind')">Windheulen</div>
     </div>
 
-    <video id="videoPlayer"></video>
+    <video id="videoPlayer" playsinline webkit-playsinline></video>
 
     <script>
         const videos = {
@@ -78,6 +78,10 @@
 
             menu.style.display = "none";
             player.style.display = "block";
+
+            player.control = false;
+            player.setAttribute("playinline","");
+            player.setAttribute("webkit-playsinline","");
 
             player.src = selectedVideo;
             player.load();
