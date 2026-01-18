@@ -108,17 +108,18 @@
         const menu = document.getElementById("menu");
         const player = document.getElementById("videoPlayer");
 
-        // placeWords: position each menu word closer together inside the 750x1334 menu
+        // placeWords: place each word in its own vertical third of the menu
         function placeWords() {
             const words = document.querySelectorAll("#menu .word");
             const rect = menu.getBoundingClientRect();
             const width = rect.width;
             const height = rect.height;
 
-            // center vertical band and small offsets so words stay close
-            const centerY = height * 0.5;
-            const offsetsY = [-60, 0, 60];
-            const baseXs = [width * 0.28, width * 0.5, width * 0.72];
+            const thirds = [
+                [0, height / 3],
+                [height / 3, 2 * height / 3],
+                [2 * height / 3, height]
+            ];
 
             words.forEach((word) => {
                 word.style.position = 'absolute';
@@ -127,12 +128,19 @@
             });
 
             requestAnimationFrame(() => {
+                // horizontal anchors: first near left, second near right, third slightly left
+                const baseXs = [width * 0.12, width * 0.88, width * 0.32];
+
                 words.forEach((word, index) => {
-                    const jitterX = (Math.random() - 0.5) * 30; // ±15px
-                    const jitterY = (Math.random() - 0.5) * 20; // ±10px
+                    const [minY, maxY] = thirds[index];
+                    const centerY = (minY + maxY) / 2;
+
+                    // small random jitter so layout looks natural
+                    const jitterX = (Math.random() - 0.5) * 16; // ±8px
+                    const jitterY = (Math.random() - 0.5) * 12; // ±6px
 
                     let left = Math.round(baseXs[index] - word.offsetWidth / 2 + jitterX);
-                    let top = Math.round(centerY + offsetsY[index] + jitterY - word.offsetHeight / 2);
+                    let top = Math.round(centerY - word.offsetHeight / 2 + jitterY);
 
                     // clamp inside menu
                     left = Math.max(0, Math.min(left, Math.max(0, width - word.offsetWidth)));
