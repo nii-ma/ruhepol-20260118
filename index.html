@@ -4,28 +4,46 @@
     <meta charset="UTF-8">
     <title>Video Auswahl</title>
     <style>
+        
+        
+
         body {
             margin: 0;
             background-color: black;
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: IBM Plex Sans, regular;
+            font-weight:500;
+            letter-spacing: -0.099cm;
+            transition: none;
             overflow: hidden;
         }
 
+
+
         #menu {
-            position: absolute;
+            /* positioned container so absolutely-placed words are relative to it */
+            position: relative;
             inset: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            font-size: 48px;
+            height: 100vh;
+            font-size: 43px;
             cursor: pointer;
         }
 
-        .word:hover {
-            color: #aaa;
+        /* subtle floating animation for the words */
+        .word {
+            position: absolute;
+            display: inline-block;
+            color: inherit;
+            animation: floatWord 3.5s ease-in-out infinite;
+            will-change: transform;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+
+        @keyframes floatWord {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0); }
         }
 
         #videoPlayer {
@@ -43,9 +61,9 @@
 <body>
 
     <div id="menu">
-        <div class="word" onclick="playRandom('schaum')">Schaumkronen</div>
-        <div class="word" onclick="playRandom('blaetter')">Blätterschatten</div>
-        <div class="word" onclick="playRandom('wind')">Windheulen</div>
+        <div class="word" onclick="playRandom('schaum')">schaumkronen</div>
+        <div class="word" onclick="playRandom('blaetter')">blätterschatten</div>
+        <div class="word" onclick="playRandom('wind')">windheulen</div>
     </div>
 
     <video id="videoPlayer" playsinline webkit-playsinline></video>
@@ -83,6 +101,42 @@
 
         const menu = document.getElementById("menu");
         const player = document.getElementById("videoPlayer");
+
+        // placeWords: randomly place each menu word into one third of the screen
+        function placeWords() {
+            const words = document.querySelectorAll("#menu .word");
+            const height = window.innerHeight;
+
+            const thirds = [
+                [0, height / 3],            // erstes Drittel
+                [height / 3, 2 * height / 3], // zweites Drittel
+                [2 * height / 3, height]      // drittes Drittel
+            ];
+
+            const shuffledThirds = thirds.sort(() => Math.random() - 0.5);
+
+            words.forEach((word, index) => {
+                // ensure word is measured before placing
+                word.style.position = 'absolute';
+                word.style.left = '0px';
+                word.style.top = '0px';
+            });
+
+            // allow layout to update then compute positions
+            requestAnimationFrame(() => {
+                words.forEach((word, index) => {
+                    const [minY, maxY] = shuffledThirds[index];
+                    const top = minY + Math.random() * Math.max(0, (maxY - minY - word.offsetHeight));
+                    const left = Math.random() * Math.max(0, (window.innerWidth - word.offsetWidth));
+
+                    word.style.top = `${top}px`;
+                    word.style.left = `${left}px`;
+                });
+            });
+        }
+
+        window.addEventListener("load", placeWords);
+        window.addEventListener("resize", placeWords);
 
         function playRandom(category) {
             // try to open fullscreen on the video element or document (must be a direct user gesture)
