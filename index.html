@@ -145,8 +145,8 @@
                     const jitterY = (Math.random() - 0.5) * 12; // ±6px
 
                     let left = Math.round(baseXs[index] - word.offsetWidth / 2 + jitterX);
-                    let top = Math.round(centerY - word.offsetHeight / 2 + jitterY + (offsetsY[index] || 0));
-
+                    let top = Math.round(centerY - word.offsetHeight / 2 + jitterY);
+//let top = Math.round(centerY - word.offsetHeight / 2 + jitterY + (offsetsY[index] || 0));
                     // clamp inside menu
                     left = Math.max(0, Math.min(left, Math.max(0, width - word.offsetWidth)));
                     top = Math.max(0, Math.min(top, Math.max(0, height - word.offsetHeight)));
