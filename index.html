@@ -215,6 +215,8 @@
             const list = videos[category];
             const randomIndex = Math.floor(Math.random() * list.length);
             const selectedVideo = list[randomIndex];
+            if (player.src && player.src.includes(selectedVideo)) return playRandom(category);
+
 
             menu.style.display = "none";
             player.style.display = "block";
